@@ -159,7 +159,7 @@
         .restart-coin {
             position: absolute;
             right: 2rem; /* Changed from -100px to 2rem to keep inside container */
-            bottom: 80px;
+            bottom: 140px; /* Increased from 80px to move it higher */
             width: 60px;
             height: 60px;
             background: var(--accent-yellow);
@@ -173,6 +173,16 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .restart-coin {
+                right: 1rem; /* Less padding on mobile */
+                bottom: 120px; /* Adjust position for mobile */
+                width: 50px; /* Slightly smaller on mobile */
+                height: 50px;
+                font-size: 1.2rem;
+            }
         }
 
         .restart-coin.visible {
@@ -204,12 +214,12 @@
             color: var(--text-light);
             transition: opacity 0.5s ease;
             min-height: 80px; /* Increased from 60px to accommodate both states */
-            height: 80px; /* Fixed height to prevent expansion */
+            height: auto; /* Changed from fixed height to auto for flexibility */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            overflow: hidden; /* Prevent content from expanding container */
+            padding: 0 1rem; /* Add horizontal padding for mobile */
         }
 
         .pull-count {
@@ -221,6 +231,20 @@
             font-weight: bold;
             margin-left: 0.5rem;
             margin-top: 0.8rem;
+            white-space: normal; /* Allow text to wrap on mobile */
+            max-width: 90%; /* Prevent overflow on mobile */
+        }
+
+        @media (max-width: 768px) {
+            .instructions {
+                font-size: 1rem; /* Slightly smaller on mobile */
+            }
+            
+            .pull-count {
+                display: block; /* Make it a block element on mobile */
+                margin-left: 0; /* Remove left margin */
+                margin-top: 1rem;
+            }
         }
 
         .win-text {
@@ -483,7 +507,7 @@
                         <div class="slot-item">🐱</div>
                         <div class="slot-item">🐱</div>
                         <div class="slot-item">💻</div>
-                        <div class="slot-item">📱</div>
+                        <div class="slot-item">🖥️</div>
                     </div>
                 </div>
                 <div class="reel">
@@ -499,7 +523,7 @@
                         <div class="slot-item">🦜</div>
                         <div class="slot-item">💻</div>
                         <div class="slot-item">📱</div>
-                        <div class="slot-item">🖥️</div>
+                        <div class="slot-item">📱</div>
                     </div>
                 </div>
             </div>
@@ -610,23 +634,6 @@
             </div>
         </div>
     </footer>
-
-        <script>
-        (function(d,t) {
-          var BASE_URL="https://app.chatwoot.com";
-          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-          g.src=BASE_URL+"/packs/js/sdk.js";
-          g.defer = true;
-          g.async = true;
-          s.parentNode.insertBefore(g,s);
-          g.onload=function(){
-            window.chatwootSDK.run({
-              websiteToken: 'xiyWsj719fc5BZUsg8i4n88i',
-              baseUrl: BASE_URL
-            })
-          }
-        })(document,"script");
-      </script>
 
     <script>
         // FEATURE FLAGS and global variables
