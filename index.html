@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Code LLC - Pull to Win Your Next App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-cream: #fef6e4;
+            --primary-coral: #f582ae;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #fbbf24;
+            --accent-blue: #3b82f6;
+            --text-dark: #001858;
+            --text-light: #172554;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Slot Machine Section */
+        .slot-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-cream);
+            position: relative;
+        }
+
+        .slot-section.won {
+            height: 100vh; /* Keep full height even after winning */
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-coral);
+            margin-bottom: 2rem;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+
+        /* Slot Machine Container */
+        .slot-machine-container {
+            position: relative;
+            background: var(--white);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Changed from visible to hidden to contain confetti */
+            max-width: 600px; /* Add max-width to prevent expansion */
+            width: 100%;
+        }
+
+        .slot-display {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .reel {
+            width: 120px;
+            height: 120px;
+            background: var(--bg-cream);
+            border: 4px solid var(--primary-coral);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reel-content {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .slot-item {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        /* Lever Design */
+        .lever-container {
+            position: relative;
+            width: 60px;
+            height: 200px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .lever-base {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 40px;
+            background: var(--text-dark);
+            border-radius: 20px;
+        }
+
+        .lever {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 150px;
+            background: var(--accent-purple);
+            border-radius: 4px;
+            transform-origin: bottom center;
+            transition: transform 0.3s ease;
+        }
+
+        .lever-ball {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--primary-coral);
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s;
+        }
+
+        .lever-container:hover .lever-ball {
+            background: var(--accent-purple);
+        }
+
+        .lever.pulling {
+            transform: translateX(-50%) rotate(30deg);
+        }
+
+        /* Restart Coin */
+        .restart-coin {
+            position: absolute;
+            right: 2rem; /* Changed from -100px to 2rem to keep inside container */
+            bottom: 80px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent-yellow);
+            border-radius: 50%;
+            display: none;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .restart-coin.visible {
+            display: flex;
+            animation: slideIn 0.5s ease;
+        }
+
+        .restart-coin:hover {
+            transform: scale(1.1);
+            background: var(--primary-coral);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Instructions */
+        .instructions {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-light);
+            transition: opacity 0.5s ease;
+            min-height: 80px; /* Increased from 60px to accommodate both states */
+            height: 80px; /* Fixed height to prevent expansion */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden; /* Prevent content from expanding container */
+        }
+
+        .pull-count {
+            display: inline-block;
+            background: var(--accent-yellow);
+            color: var(--text-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .win-text {
+            color: var(--primary-coral);
+            font-weight: bold;
+            font-size: 1.1rem;
+            animation: fadeIn 0.5s ease;
+            line-height: 1.6;
+        }
+
+        .scroll-button {
+            display: inline-block;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .scroll-button:hover {
+            transform: translateY(3px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-purple);
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) rotate(720deg);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            background: var(--bg-cream);
+        }
+
+        section {
+            padding: 4rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--primary-coral);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Grid Layouts - responsive with auto-fit */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        /* Special grid for apps section to center orphaned items */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            text-align: center;
+            min-width: 250px;
+            width: 100%;
+        }
+
+        /* Center orphaned items with consistent width */
+        @media (min-width: 768px) {
+            /* For 3 items - center the third one if it's alone on a row */
+            .apps-grid .service-card:nth-child(3):last-child {
+                grid-column: auto;
+                max-width: 290px;
+                margin: 0 auto;
+            }
+            
+            /* For 4 items in services grid */
+            .services-grid {
+                grid-template-columns: repeat(3, minmax(250px, 1fr));
+            }
+            
+            /* Center the 4th item below the 2nd item */
+            .services-grid .service-card:nth-child(4) {
+                grid-column: 2;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-section {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-coral);
+        }
+
+        .submit-btn {
+            background: var(--primary-coral);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: var(--accent-purple);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: var(--white);
+            padding: 3rem 5%;
+            margin-top: 0;
+            position: relative;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-coral);
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-socials a {
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: transform 0.3s;
+            color: var(--white);
+        }
+
+        .footer-socials a:hover {
+            transform: scale(1.2);
+        }
+
+        .footer-copyright {
+            text-align: center;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .footer-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Slot Machine Section -->
+    <div class="slot-section" id="slotSection">
+        <h1 class="logo">Vibe Code LLC</h1>
+        <p class="subtitle">Pull the lever to discover your next app!</p>
+        
+        <div class="slot-machine-container" id="slotMachine">
+            <div class="slot-display">
+                <div class="reel">
+                    <div class="reel-content" id="reel1">
+                        <div class="slot-item">🐱</div>
+                        <div class="slot-item">🐱</div>
+                        <div class="slot-item">💻</div>
+                        <div class="slot-item">🖥️</div>
+                    </div>
+                </div>
+                <div class="reel">
+                    <div class="reel-content" id="reel2">
+                        <div class="slot-item">🐶</div>
+                        <div class="slot-item">📱</div>
+                        <div class="slot-item">📱</div>
+                        <div class="slot-item">💻</div>
+                    </div>
+                </div>
+                <div class="reel">
+                    <div class="reel-content" id="reel3">
+                        <div class="slot-item">🦜</div>
+                        <div class="slot-item">💻</div>
+                        <div class="slot-item">📱</div>
+                        <div class="slot-item">📱</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lever-container" onclick="pullLever()">
+                <div class="lever-base"></div>
+                <div class="lever" id="lever">
+                    <div class="lever-ball"></div>
+                </div>
+            </div>
+            
+            <div class="restart-coin" id="restartCoin" onclick="resetGame()">🪙</div>
+            
+            <div class="instructions" id="instructions">
+                Scroll down or click to pull the lever! 
+                <span class="pull-count" id="pullCount">0/3 pulls</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <section id="about">
+            <h2>Who Are We</h2>
+            <div class="about-section">
+                <p><strong>We are Vibe Code LLC</strong> – cross-functional specialists who believe in rapid iteration and direct client engagement. We practice <em>vibe coding</em>: where creativity meets code and great ideas ship fast.</p>
+                <br>
+                <p>Our motto? <strong>"Ship Fast, Worry Less"</strong></p>
+                <br>
+                <p>We move quick, we move fun, and we deliver exceptional digital experiences.</p>
+            </div>
+        </section>
+
+        <section id="our-apps" style="display: none;">
+            <h2>Our Apps</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📔</div>
+                    <h3>MetaJournal</h3>
+                    <p>A mindful journaling app that uses AI to help you discover patterns in your thoughts and emotions</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">⚡</div>
+                    <h3>MobileDev</h3>
+                    <p>The developer's companion app for testing, debugging, and monitoring mobile applications on the go</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🏓</div>
+                    <h3>Ping!</h3>
+                    <p>Stay connected with quick, contextual check-ins that keep teams aligned without the meeting overload</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="services">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>Mobile Apps</h3>
+                    <p>Native iOS and Android applications built with Swift and Kotlin</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🌐</div>
+                    <h3>Web Development</h3>
+                    <p>Modern web applications using React, Vue, and Node.js</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>UI/UX Design</h3>
+                    <p>Beautiful, intuitive interfaces that users love</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">☁️</div>
+                    <h3>Cloud Solutions</h3>
+                    <p>Scalable cloud infrastructure and DevOps services</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Get In Touch</h2>
+            <div class="contact-form">
+                <form onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project">Tell us about your project</label>
+                        <textarea id="project" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#about">About</a>
+                <a href="#services">Services</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="footer-socials">
+                <a href="#">📧</a>
+                <a href="#">💬</a>
+                <a href="#">🐦</a>
+            </div>
+            <div class="footer-copyright">
+                <p>&copy; 2024 Vibe Code LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function(d,t) {
+          var BASE_URL="https://app.chatwoot.com";
+          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+          g.src=BASE_URL+"/packs/js/sdk.js";
+          g.defer = true;
+          g.async = true;
+          s.parentNode.insertBefore(g,s);
+          g.onload=function(){
+            window.chatwootSDK.run({
+              websiteToken: 'xiyWsj719fc5BZUsg8i4n88i',
+              baseUrl: BASE_URL
+            })
+          }
+        })(document,"script");
+      </script>
+
+    <script>
+        
+        // FEATURE FLAGS and global variables
+        const FEATURE_FLAGS = {
+            showOurApps: true // Set to false to hide the Our Apps section
+        };
+
+        // Show/hide Our Apps section based on feature flag
+        if (FEATURE_FLAGS.showOurApps) {
+            document.getElementById('our-apps').style.display = 'block';
+        }
+
+        let scrollLocked = true;
+        let pullCount = 0;
+        let isAnimating = false;
+        let hasWon = false;
+        let scrollAccumulated = 0;
+        let celebrationMode = false;
+
+        // Slot configurations for each pull
+        const slotConfigs = [
+            { reel1: 1, reel2: 1, reel3: 1 }, // First pull: cat, phone, computer
+            { reel1: 2, reel2: 2, reel3: 2 }, // Second pull: computer, phone, phone
+            { reel1: 3, reel2: 3, reel3: 3 }  // Third pull: server, computer, phone
+        ];
+
+        // Prevent normal scrolling initially
+        function preventScroll(e) {
+            if (scrollLocked || celebrationMode) {
+                e.preventDefault();
+            }
+        }
+
+        window.addEventListener('wheel', preventScroll, { passive: false });
+        window.addEventListener('touchmove', preventScroll, { passive: false });
+
+        // Handle scroll-based lever pulling
+        window.addEventListener('wheel', (e) => {
+            if (!hasWon && e.deltaY > 0 && pullCount < 3) {
+                scrollAccumulated += e.deltaY;
+                
+                // Pull on small scrolls or continuous scroll
+                if (scrollAccumulated > 100) {
+                    pullLever();
+                    scrollAccumulated = 0;
+                }
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!hasWon && pullCount < 3) {
+                const touchEndY = e.touches[0].clientY;
+                const deltaY = touchStartY - touchEndY;
+                
+                if (deltaY > 50) { // Threshold for pull
+                    pullLever();
+                    touchStartY = touchEndY;
+                }
+            }
+        });
+
+        function pullLever() {
+            if (isAnimating || hasWon) return;
+            
+            isAnimating = true;
+            const lever = document.getElementById('lever');
+            lever.classList.add('pulling');
+            
+            setTimeout(() => {
+                spinReels();
+                lever.classList.remove('pulling');
+                
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 800);
+            }, 300);
+        }
+
+        function spinReels() {
+            pullCount++;
+            const config = slotConfigs[pullCount - 1];
+            
+            document.getElementById('reel1').style.transform = `translateY(-${config.reel1 * 120}px)`;
+            document.getElementById('reel2').style.transform = `translateY(-${config.reel2 * 120}px)`;
+            document.getElementById('reel3').style.transform = `translateY(-${config.reel3 * 120}px)`;
+            
+            document.getElementById('pullCount').textContent = `${pullCount}/3 pulls`;
+            
+            if (pullCount === 3) {
+                setTimeout(() => {
+                    win();
+                }, 1000);
+            }
+        }
+
+        function win() {
+            hasWon = true;
+            celebrationMode = true;
+            
+            // Change instructions text with clickable button - use more compact formatting
+            document.getElementById('instructions').innerHTML = 
+                '<span class="win-text">🎉 Congratulations! Welcome to Vibe Code LLC!</span><span class="pull-count scroll-button" onclick="scrollToAbout()">Scroll down to see what we\'re about ↓</span>';
+            
+            // Create confetti
+            createConfetti();
+            
+            // Show the restart coin
+            setTimeout(() => {
+                document.getElementById('restartCoin').classList.add('visible');
+            }, 1000);
+            
+            // Wait 2 seconds then allow scrolling
+            setTimeout(() => {
+                celebrationMode = false;
+                scrollLocked = false;
+                document.getElementById('slotSection').classList.add('won');
+                
+                // Enable normal scrolling
+                window.removeEventListener('wheel', preventScroll);
+                window.removeEventListener('touchmove', preventScroll);
+                
+                // Add smooth scroll behavior
+                document.documentElement.style.scrollBehavior = 'smooth';
+            }, 2000);
+        }
+
+        function resetGame() {
+            // First scroll back to the slot machine section
+            document.getElementById('slotSection').scrollIntoView({ behavior: 'smooth' });
+            
+            // Wait for scroll to complete before locking
+            setTimeout(() => {
+                // Reset game state
+                pullCount = 0;
+                hasWon = false;
+                isAnimating = false;
+                scrollAccumulated = 0;
+                
+                // Lock scrolling again for the game
+                scrollLocked = true;
+                
+                // Re-attach scroll prevention
+                window.addEventListener('wheel', preventScroll, { passive: false });
+                window.addEventListener('touchmove', preventScroll, { passive: false });
+                
+                // Reset the coin visibility
+                document.getElementById('restartCoin').classList.remove('visible');
+                
+                // Reset the slot section state
+                document.getElementById('slotSection').classList.remove('won');
+                
+                // Reset the reels
+                document.getElementById('reel1').style.transform = 'translateY(0)';
+                document.getElementById('reel2').style.transform = 'translateY(0)';
+                document.getElementById('reel3').style.transform = 'translateY(0)';
+                
+                // Reset instructions
+                document.getElementById('instructions').innerHTML = 
+                    'Scroll down or click to pull the lever! <span class="pull-count" id="pullCount">0/3 pulls</span>';
+            }, 500); // Wait for smooth scroll to complete
+        }
+
+        function scrollToAbout() {
+            document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function createConfetti() {
+            const colors = ['#f582ae', '#8b5cf6', '#fbbf24', '#3b82f6', '#00f3ff'];
+            const slotMachine = document.getElementById('slotMachine');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.position = 'absolute';
+                
+                const startX = Math.random() * 100 - 50;
+                const startY = Math.random() * 50 - 25;
+                const endX = (Math.random() - 0.5) * 600;
+                const endY = Math.random() * 300 + 100;
+                
+                confetti.style.setProperty('--x', endX + 'px');
+                confetti.style.setProperty('--y', endY + 'px');
+                confetti.style.left = `calc(50% + ${startX}px)`;
+                confetti.style.top = `calc(50% + ${startY}px)`;
+                confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s ease-out forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                
+                slotMachine.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            alert('Thank you for your message! We\'ll get back to you soon.');
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>
